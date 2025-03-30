@@ -35,7 +35,6 @@ class ElevatorUseCase {
         this.startTime = new Date()
         this.finishTime = null
         this.deliveredCount = 0;
-        this.timeNeeded = 0;
     }
 
     spawnElevatorInstances(amount) {
@@ -143,10 +142,10 @@ class ElevatorUseCase {
                 }
                 this.visited.add(man.to)
                 this.animateElevator(idx, true)
-                this.visited.delete(man.from)
                 await this.delay(3500)
+                this.visited.delete(man.from)
                 this.visited.delete(man.to)
-                await this.delay(800)
+                await this.delay(300)
                 this.updateDeliverCount(1)
             } else {
                 this.visited.delete(man.from)

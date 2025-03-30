@@ -8,11 +8,6 @@ class Elevator {
         this.users = []
     }
 
-    getFloors(idx) {
-        if (idx === mans.length) return null;
-        return mans[idx];
-    }
-
     modifyCurrentFloorValue() {
         let gap, inLinear
         let isElevatorGoingUp = false
