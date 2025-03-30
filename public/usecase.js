@@ -135,18 +135,22 @@ class ElevatorUseCase {
             }
             this.visited.add(man.from)
             this.animateElevator(idx)
-            await this.delay(3800)
-            elv.targetFloor = man.to - 1
-            while(this.visited.has(man.to)) {
-                await this.delay(100)
+            if (man.to) {
+                await this.delay(3800)
+                elv.targetFloor = man.to - 1
+                while(this.visited.has(man.to)) {
+                    await this.delay(100)
+                }
+                this.visited.add(man.to)
+                this.animateElevator(idx, true)
+                this.visited.delete(man.from)
+                await this.delay(2000)
+                this.visited.delete(man.to)
+                await this.delay(800)
+                this.updateDeliverCount(1)
+            } else {
+                this.visited.delete(man.from)
             }
-            this.visited.add(man.to)
-            this.animateElevator(idx, true)
-            this.visited.delete(man.from)
-            await this.delay(2000)
-            this.visited.delete(man.to)
-            await this.delay(200)
-            this.updateDeliverCount(1)
             resolve()
         })
     }
@@ -175,6 +179,7 @@ class ElevatorUseCase {
         }
       
         for (let i = 0; i < this.elevators.length; i++) {
+            this.getElevatorByIdx(i).setElvToFirstFloor()
             promises.push(this.runElevators(i, this.getElevatorByIdx(i).users));
         }
       

@@ -5,6 +5,7 @@ class Elevator {
         this.previousFloor = 0
         this.targetFloor = 0
         this.animationId = null
+        this.users = []
     }
 
     getFloors(idx) {
@@ -45,4 +46,8 @@ class Elevator {
         this.users.push(mans[mansIdx])
     }
 
+    setElvToFirstFloor() {
+        let firstFloor = {from: 1}
+        this.users.push(firstFloor)
+    }
 }
