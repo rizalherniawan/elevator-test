@@ -5,8 +5,6 @@ class Elevator {
         this.previousFloor = 0
         this.targetFloor = 0
         this.animationId = null
-        this.users = []
-        this.elvParams = []
     }
 
     getFloors(idx) {
@@ -45,18 +43,6 @@ class Elevator {
             return
         }
         this.users.push(mans[mansIdx])
-    }
-
-    setElevatorParams() {
-        this.elvParams = arguments;
-    }
-    
-    getElevatorParams(){
-        return this.elvParams;
-    }
-    
-    clearElevatorParams() {
-        this.elvParams = [];
     }
 
 }
