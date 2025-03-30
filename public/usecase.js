@@ -130,13 +130,13 @@ class ElevatorUseCase {
         return new Promise(async (resolve) => {
             let elv = this.getElevatorByIdx(idx);
             elv.targetFloor = man.from - 1;
-            while(this.visited.has(man.from)) {
+            while (this.visited.has(man.from)) {
                 await this.delay(100)
             }
             this.visited.add(man.from)
             this.animateElevator(idx)
             if (man.to) {
-                await this.delay(3800)
+                await this.delay(3500)
                 elv.targetFloor = man.to - 1
                 while(this.visited.has(man.to)) {
                     await this.delay(100)
@@ -144,7 +144,7 @@ class ElevatorUseCase {
                 this.visited.add(man.to)
                 this.animateElevator(idx, true)
                 this.visited.delete(man.from)
-                await this.delay(2000)
+                await this.delay(3500)
                 this.visited.delete(man.to)
                 await this.delay(800)
                 this.updateDeliverCount(1)

@@ -14,28 +14,32 @@ class Elevator {
     }
 
     modifyCurrentFloorValue() {
-        let gap, step
-        let inLinear = parseInt(this.targetFloor / 5)
+        let gap, inLinear
         let isElevatorGoingUp = false
         if (this.currentFloor < this.targetFloor) {
             gap = this.targetFloor - this.currentFloor;
             isElevatorGoingUp = true
-        } else if (this.currentFloor > this.targetFloor) {
-            gap = this.currentFloor - this.targetFloor
-        }
-
-        if(gap < 5 || (this.currentFloor === 0 && this.currentFloor <= inLinear) 
-            || (this.currentFloor > 0 && (this.currentFloor - 5) < inLinear) 
-            || this.currentFloor > parseInt(inLinear * 5)) {
-            step = 0.1
+            inLinear = parseInt(this.targetFloor / 5)
         } else {
-            step = 0.2
+            gap = this.currentFloor - this.targetFloor
+            inLinear = parseInt(this.previousFloor / 5)
         }
 
         if (isElevatorGoingUp) {
-            this.currentFloor += step
+            if (gap < 5 || (this.currentFloor === 0 && this.currentFloor <= inLinear)
+                || (this.currentFloor > 0 && (this.currentFloor - 5) < inLinear)) {
+                this.currentFloor += 0.1
+            } else {
+                this.currentFloor += 0.2
+            }
+            if (this.currentFloor > this.targetFloor) this.currentFloor = this.targetFloor 
         } else {
-            this.currentFloor -= step
+            if (gap < 5 || (inLinear > 0 && this.currentFloor > parseInt(inLinear * 5))) {
+                this.currentFloor -= 0.1
+            } else {
+                this.currentFloor -= 0.2
+            }
+            if (this.currentFloor < this.targetFloor) this.currentFloor = this.targetFloor
         }
     }
 
