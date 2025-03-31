@@ -8,6 +8,9 @@ class Elevator {
         this.users = []
     }
 
+    /**
+     * modify value of current floor property
+     */
     modifyCurrentFloorValue() {
         let gap, inLinear
         let isElevatorGoingUp = false
@@ -38,6 +41,10 @@ class Elevator {
         }
     }
 
+    /**
+     * assign list of floor destinations to elevator instance
+     * @param {Number} mansIdx - elevator index
+     */
     setMan(mansIdx) {
         if(mansIdx == mans.length) {
             return
@@ -45,6 +52,9 @@ class Elevator {
         this.users.push(mans[mansIdx])
     }
 
+    /**
+     * insert first floor to list of floor destinations as the last destination 
+     */
     setElvToFirstFloor() {
         let firstFloor = {from: 1}
         this.users.push(firstFloor)

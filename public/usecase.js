@@ -37,6 +37,10 @@ class ElevatorUseCase {
         this.deliveredCount = 0;
     }
 
+    /**
+     *  create elevator classes based on inserted amount
+     *  @param {Number} amount - number to determine the amount of elevator classes that are going to be spawned
+     */ 
     spawnElevatorInstances(amount) {
         for (let i = 0; i < amount; i++) {
             let elevator = new Elevator(i)
@@ -44,10 +48,16 @@ class ElevatorUseCase {
         }
     }
 
+    /**
+     * marks the start time and end time of elevator and count amount of elevator trips after delivery
+     * @param {Number} v - amount of elevator trips after delivery
+     */
     updateDeliverCount(v) {
+        // count elevator trip after delivery
         if (v !== undefined && v > 0) {
           this.deliveredCount += v;
         }
+
         document.getElementById("startTime").innerHTML = this.startTime.toLocaleString();
 
         if (this.finishTime) {
@@ -58,34 +68,62 @@ class ElevatorUseCase {
         document.getElementById("counter").innerHTML = this.deliveredCount;
     }
 
+    /**
+     * animate the elevators
+     * @param {Number} idx - index of elevators as referenced by the elevators array
+     */
     animateElevator(idx) {
+        // get elevator from elevators array by index
         let elv = this.getElevatorByIdx(idx)
         if (elv.currentFloor !== elv.targetFloor) {
+
+            // modify the value of current floor property that belongs to elevator class
             elv.modifyCurrentFloorValue();
         }
     
         this.drawElevator(this.elevators.length);
     
         if (elv.currentFloor !== elv.targetFloor) {
+
+            // enable elevators to be animated and mark it as animationId which is the property of elevator class
             elv.animationId = requestAnimationFrame(() => this.animateElevator(idx));
         } else {
             elv.previousFloor = elv.currentFloor;
+
+            // stop the animation frame
             cancelAnimationFrame(elv.animationId);
         }
     }
 
+    /**
+     * access elevator from elevators array by index 
+     * @param {Number} idx - index of elevators as referenced by the elevators array
+     * @returns {Elevator} - elevator class
+     */
     getElevatorByIdx(idx) {
         return this.elevators[idx]
     }
 
+    /**
+     * draw elevator box
+     * @param {Number} xPos - x position
+     * @param {Number} yPos - y position
+     * @param {Number} wVal - elevator width
+     * @param {Number} hVal - elevator height
+     */
     drawElevatorBox(xPos, yPos, wVal, hVal) {
         this.ctx.fillStyle = 'red';
         this.ctx.fillRect(xPos, yPos, wVal, hVal);
     }
 
+    /**
+     * draw elevator
+     */
     drawElevator() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = 'black';
+
+        // draw layout of floors
         for (let i = 0; i < this.totalFloors; i++) {
             const yPosition = this.canvas.height - (i + 1) * this.floorHeight;
             this.ctx.fillText(`Floor ${i+1}`, 10, yPosition + this.floorHeight - 2);
@@ -103,6 +141,7 @@ class ElevatorUseCase {
         
         let gapBetween = 0;
         
+        // draw elevators box 
         for (let i = 0; i < this.elevators.length; i++) {
             if (i > 0) {
                 gapBetween = i * 15;
@@ -115,37 +154,70 @@ class ElevatorUseCase {
         }
     }
 
+    /**
+     * draw elevators in bulk based on the amount of elevator instances
+     */
     drawElevators() {
         for (let i = 0; i < this.elevators.length; i++) {
             this.drawElevator(this.elevators.length)
         }
     }
 
+    /**
+     * delay operation
+     * @param {Number} ms - desired delayed time
+     * @returns {Promise} - a promise that holds delayed time
+     */
     async delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    /**
+     * move the elevator
+     * @param {Number} idx - elevator index
+     * @param {Object} man - man object inside mans array in data.js file
+     * @returns {Promise} - a promise to marks elevator if certain elevator successfully deliver people
+     */
     async go(idx, man) {
         return new Promise(async (resolve) => {
             let elv = this.getElevatorByIdx(idx);
             elv.targetFloor = man.from - 1;
+
+            // check whether one of the elevator already reach certain floor with "from" property
             while (this.visited.has(man.from)) {
+
+                // delay operation
                 await this.delay(100)
             }
+
+            // add floor destination or "from" propery to queue
             this.visited.add(man.from)
+
+            // animate elevator
             this.animateElevator(idx)
             if (man.to) {
                 await this.delay(3500)
                 elv.targetFloor = man.to - 1
+
+                // check whether one of the elevator already reach certain floor with "to" property
                 while(this.visited.has(man.to)) {
                     await this.delay(100)
                 }
+
+                // add floor destination or "to" propery to queue
                 this.visited.add(man.to)
+
                 this.animateElevator(idx, true)
                 await this.delay(3500)
+
+                // delete "from property" from queue 
                 this.visited.delete(man.from)
+
+                // delete "to property" from queue 
                 this.visited.delete(man.to)
                 await this.delay(300)
+
+                // count 
                 this.updateDeliverCount(1)
             } else {
                 this.visited.delete(man.from)
@@ -154,6 +226,12 @@ class ElevatorUseCase {
         })
     }
 
+    /**
+     * run elevator in sequence according to the order of its destinations floor
+     * @param {Number} elvIdx - index of elevator
+     * @param {Array<Object>} mans - array of object that stores list destinations floor of certain elevator
+     * @returns {Promise}
+     */
     runElevators(elvIdx, mans) {
         return new Promise(async (resolve) => {
             for(let i = 0; i < mans.length; i++) {
@@ -163,11 +241,17 @@ class ElevatorUseCase {
         })
     }
 
+    /**
+     * run multiple elevators in asynchronous  
+     * @param {Number} loopCount - number of desired loop
+     * @returns {Promise}
+     */
     async run(loopCount) {
         const promises = [];
 
         let elvIdx = 0
         
+        // set list of floor destinations to each elevator class inside elevator array
         for (let i = 0; i < loopCount; i++) {
             this.getElevatorByIdx(elvIdx).setMan(i)
             if (elvIdx == this.elevators.length - 1) {
@@ -177,11 +261,13 @@ class ElevatorUseCase {
             }
         }
       
+        // assign list of floor destinations to each elevator instance
         for (let i = 0; i < this.elevators.length; i++) {
             this.getElevatorByIdx(i).setElvToFirstFloor()
             promises.push(this.runElevators(i, this.getElevatorByIdx(i).users));
         }
       
+        // enable elevators to run in asynchronous
         return Promise.all(promises).then(() => {
             this.finishTime = new Date();
             this.updateDeliverCount();
